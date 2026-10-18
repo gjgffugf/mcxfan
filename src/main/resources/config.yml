@@ -1,0 +1,57 @@
+# AllItemsTotem 配置
+# 所有物品都可以在致命伤害时替你挡一次死亡（不死图腾同款效果），不冷却，挡完消耗该物品 1 个。
+
+# 总开关
+enabled: true
+
+# 触发复活时是否消耗该物品（false = 无限次复活）
+consume-item: true
+
+# 是否允许消耗盔甲槽里的物品（头盔/胸甲/护腿/靴子）
+include-armor: false
+
+# 复活后恢复到的生命值（单位同游戏内血量，20 = 满血）
+heal-health: 1.0
+
+# 复活时是否清除身上已有的药水效果（原版不死图腾行为）
+clear-effects: true
+
+# 复活时是否熄灭身上的火
+extinguish: true
+
+# 复活后的无敌时间（tick）。0 = 完全无冷却，下一次致命伤害可立即再次触发
+invulnerable-ticks: 0
+
+# 是否要求玩家拥有 allitemstotem.use 权限才能触发
+require-permission: false
+
+# 不触发复活的伤害类型（原版不死图腾同样对虚空/kill 无效）
+excluded-causes:
+  - VOID
+  - KILL
+
+# 不能用来复活的物品材质（其他所有物品都可以）
+blacklist:
+  - AIR
+
+# 复活后给予的效果（原版不死图腾：再生II 45s、伤害吸收II 5s、防火 40s）
+effects:
+  regeneration:
+    type: REGENERATION
+    amplifier: 1
+    duration: 900
+  absorption:
+    type: ABSORPTION
+    amplifier: 1
+    duration: 100
+  fire_resistance:
+    type: FIRE_RESISTANCE
+    amplifier: 0
+    duration: 800
+
+# 粒子与音效
+particles:
+  enabled: true
+  amount: 100
+sound:
+  enabled: true

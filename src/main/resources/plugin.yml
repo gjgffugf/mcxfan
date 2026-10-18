@@ -1,0 +1,23 @@
+name: AllItemsTotem
+version: '${project.version}'
+main: com.example.totemitems.AllItemsTotem
+api-version: '1.21'
+folia-supported: true
+author: YourName
+description: 让所有物品都拥有不死图腾的效果：致命伤害时消耗一件物品复活，无冷却，带粒子与音效
+website: https://github.com/YourName/AllItemsTotem
+
+commands:
+  allitemstotem:
+    description: 重载 AllItemsTotem 配置
+    usage: /<command> reload
+    aliases: [ait]
+    permission: allitemstotem.admin
+
+permissions:
+  allitemstotem.use:
+    description: 允许用物品复活（仅在 require-permission 开启时生效）
+    default: true
+  allitemstotem.admin:
+    description: 允许重载插件配置
+    default: op
