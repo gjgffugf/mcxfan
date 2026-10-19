@@ -43,6 +43,10 @@ public final class ResurrectListener implements Listener {
         if (!s.enabled || s.excludedCauses.contains(event.getCause())) {
             return;
         }
+        // 玩家自己用 /itemstotem off 关掉了
+        if (!plugin.isEffectEnabled(player)) {
+            return;
+        }
 
         GameMode mode = player.getGameMode();
         if (mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR) {
@@ -72,12 +76,15 @@ public final class ResurrectListener implements Listener {
             return;
         }
 
+        ItemStack shown = slot.item().clone();
+
         if (s.consumeItem && !consume(player, slot)) {
             return;
         }
 
         event.setCancelled(true);
         resurrect(player, s);
+        TotemAnimation.play(plugin, player, shown, s);
     }
 
     /** 执行原版不死图腾同款的复活效果。 */

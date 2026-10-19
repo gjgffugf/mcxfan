@@ -5,7 +5,8 @@
 - 受到致命伤害时自动触发，和原版不死图腾一样原地复活；
 - 触发时**消耗该物品 1 个**（物品原来的功能，如放置、食用、合成、附魔等完全不受影响）；
 - **无冷却**：只要身上还有物品就能连续触发（可自行配置复活后的短暂无敌时间）；
-- 完整的不死图腾表现：`TOTEM_OF_UNDYING` 粒子、`ITEM_TOTEM_USE` 音效、再生 II / 伤害吸收 II / 防火效果；
+- 完整的不死图腾表现：`TOTEM_OF_UNDYING` 粒子、`ITEM_TOTEM_USE` 音效、物品举到眼前旋转的动画、再生 II / 伤害吸收 III（12 点 = 6 颗心）/ 防火效果；
+- 玩家可以用 `/itemstotem on|off` 自己开关该效果，设置会保存到 `players.yml`；
 - 触发前会抛出 `EntityResurrectEvent`，其它插件仍然可以否决这次复活；
 - 兼容 Folia（不使用全局调度器）。
 
@@ -14,6 +15,28 @@
 主手 → 副手 → 背包（含快捷栏）→ 盔甲栏（默认关闭）。
 
 默认不消耗盔甲槽物品（`include-armor: false`），避免出现"被打一下头盔没了"的情况。盔甲栏的优先级也最低，开启后只在其它格子全空时才会用到。
+
+## 命令
+
+| 命令 | 说明 | 权限 |
+| --- | --- | --- |
+| `/itemstotem on` | 为自己开启效果 | allitemstotem.use（默认所有人） |
+| `/itemstotem off` | 为自己关闭效果 | allitemstotem.use |
+| `/itemstotem toggle` | 切换 | allitemstotem.use |
+| `/itemstotem status` | 查看自己状态 | allitemstotem.use |
+| `/itemstotem <on/off/toggle/status> <玩家>` | 管理其他在线玩家 | allitemstotem.admin（默认 OP） |
+| `/allitemstotem reload` | 重载 config.yml | allitemstotem.admin |
+
+`/itemstotem` 有别名 `/it`。玩家开关默认**开启**，关闭状态写入 `plugins/AllItemsTotem/players.yml`，重启后保留。
+
+## 动画说明
+
+原版不死图腾的"物品举到眼前旋转"是纯客户端动画，服务端无法直接调用，这里用 `ItemDisplay` 实体还原：
+
+- 物品悬在玩家眼前 1.25 格，随视线移动，1.5 秒内绕 Y 轴自转一圈半；
+- 缩放曲线：弹出（0.3 → 1.25）→ 收住 → 缩小消失；
+- 实体设为不可拾取、无重力、常亮，动画结束自动移除，玩家离线立即清理；
+- 不想要就关 `animation.enabled: false`（服务器也需客户端正常渲染 Display 实体）。
 
 ## 安装
 
@@ -36,7 +59,8 @@
 | `require-permission` | false | 开启后需要 `allitemstotem.use` 权限 |
 | `excluded-causes` | VOID, KILL | 不触发复活的伤害类型 |
 | `blacklist` | AIR | 不能用来复活的材质（填材质英文名，如 `DIAMOND`） |
-| `effects` | 再生II / 吸收II / 防火 | 复活后给予的效果，`amplifier` 从 0 开始（0 = I 级） |
+| `effects` | 再生II / 吸收III / 防火 | 复活后给予的效果，`amplifier` 从 0 开始（0 = I 级）。伤害吸收 III = 12 点 = 6 颗心，比原版多 2 颗 |
+| `animation` | 开启 / 30 tick / 1.25 格 | 物品旋转动画的开关、时长与距离 |
 | `particles` / `sound` | 开启 | 粒子数量与音效开关 |
 
 权限：`allitemstotem.use`（默认所有人，仅在 `require-permission: true` 时生效）、`allitemstotem.admin`（默认 OP，用于重载配置）。

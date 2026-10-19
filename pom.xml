@@ -33,6 +33,13 @@
             <version>${paper.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Transformation 用到的向量/四元数库，Paper 自带，这里只为编译期可见 -->
+        <dependency>
+            <groupId>org.joml</groupId>
+            <artifactId>joml</artifactId>
+            <version>1.10.5</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

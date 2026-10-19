@@ -31,6 +31,9 @@ public final class TotemSettings {
     public final boolean extinguish;
     public final int invulnerableTicks;
     public final boolean requirePermission;
+    public final boolean animation;
+    public final int animationTicks;
+    public final double animationDistance;
     public final boolean particles;
     public final int particleAmount;
     public final boolean sound;
@@ -47,6 +50,9 @@ public final class TotemSettings {
         this.extinguish = config.getBoolean("extinguish", true);
         this.invulnerableTicks = Math.max(0, config.getInt("invulnerable-ticks", 0));
         this.requirePermission = config.getBoolean("require-permission", false);
+        this.animation = config.getBoolean("animation.enabled", true);
+        this.animationTicks = Math.max(5, config.getInt("animation.duration-ticks", 30));
+        this.animationDistance = config.getDouble("animation.distance", 1.25D);
         this.particles = config.getBoolean("particles.enabled", true);
         this.particleAmount = Math.max(1, config.getInt("particles.amount", 100));
         this.sound = config.getBoolean("sound.enabled", true);
