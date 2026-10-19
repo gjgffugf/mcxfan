@@ -1,23 +1,11 @@
 package com.example.totemitems;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 让所有物品都拥有不死图腾的效果。
@@ -27,18 +15,12 @@ public final class AllItemsTotem extends JavaPlugin implements TabExecutor {
     private TotemSettings settings;
     private ResurrectListener listener;
 
-    /** 关闭了效果的玩家（默认所有人都开启） */
-    private final Set<UUID> disabled = ConcurrentHashMap.newKeySet();
-
     @Override
     public void onEnable() {
         saveDefaultConfig();
         this.settings = new TotemSettings(getConfig(), getLogger());
         this.listener = new ResurrectListener(this);
         getServer().getPluginManager().registerEvents(this.listener, this);
-        getServer().getPluginManager().registerEvents(new JoinQuitListener(), this);
-
-        loadDisabledPlayers();
 
         var cmd = getCommand("allitemstotem");
         if (cmd != null) {
@@ -46,19 +28,19 @@ public final class AllItemsTotem extends JavaPlugin implements TabExecutor {
             cmd.setTabCompleter(this);
         }
 
-        var toggleCmd = getCommand("itemstotem");
-        if (toggleCmd != null) {
+        var switchCmd = getCommand("itemstotem");
+        if (switchCmd != null) {
             ItemstotemCommand executor = new ItemstotemCommand(this);
-            toggleCmd.setExecutor(executor);
-            toggleCmd.setTabCompleter(executor);
+            switchCmd.setExecutor(executor);
+            switchCmd.setTabCompleter(executor);
         }
 
-        getLogger().info("AllItemsTotem 已启用（所有物品 = 不死图腾）");
+        getLogger().info("AllItemsTotem 已启用（所有物品 = 不死图腾），当前效果："
+                + (this.settings.enabled ? "开启" : "关闭"));
     }
 
     @Override
     public void onDisable() {
-        saveDisabledPlayers();
         getLogger().info("AllItemsTotem 已卸载");
     }
 
@@ -72,65 +54,17 @@ public final class AllItemsTotem extends JavaPlugin implements TabExecutor {
         return this.settings;
     }
 
-    // ------------------------------------------------------------------ 玩家开关
+    // ------------------------------------------------------------------ 全局开关
 
-    public boolean isEffectEnabled(Player player) {
-        return !this.disabled.contains(player.getUniqueId());
+    /** 全局效果是否开启（对所有玩家生效，写回 config.yml） */
+    public boolean isEffectEnabled() {
+        return this.settings.enabled;
     }
 
-    public void setEffectEnabled(Player player, boolean enabled) {
-        if (enabled) {
-            this.disabled.remove(player.getUniqueId());
-        } else {
-            this.disabled.add(player.getUniqueId());
-        }
-        saveDisabledPlayersAsync();
-    }
-
-    private File stateFile() {
-        return new File(getDataFolder(), "players.yml");
-    }
-
-    private void loadDisabledPlayers() {
-        this.disabled.clear();
-        File file = stateFile();
-        if (!file.exists()) {
-            return;
-        }
-        FileConfiguration data = YamlConfiguration.loadConfiguration(file);
-        for (String raw : data.getStringList("disabled")) {
-            try {
-                this.disabled.add(UUID.fromString(raw));
-            } catch (IllegalArgumentException ignored) {
-                // 忽略无效数据
-            }
-        }
-    }
-
-    private void saveDisabledPlayers() {
-        FileConfiguration data = new YamlConfiguration();
-        List<String> list = this.disabled.stream().map(UUID::toString).toList();
-        data.set("disabled", list);
-        try {
-            if (!getDataFolder().exists() && !getDataFolder().mkdirs()) {
-                getLogger().warning("无法创建插件数据目录");
-                return;
-            }
-            data.save(stateFile());
-        } catch (IOException e) {
-            getLogger().warning("保存 players.yml 失败：" + e.getMessage());
-        }
-    }
-
-    private void saveDisabledPlayersAsync() {
-        Bukkit.getAsyncScheduler().runNow(this, task -> saveDisabledPlayers());
-    }
-
-    private final class JoinQuitListener implements Listener {
-        @EventHandler
-        public void onQuit(PlayerQuitEvent event) {
-            saveDisabledPlayers();
-        }
+    public void setEffectEnabled(boolean enabled) {
+        getConfig().set("enabled", enabled);
+        saveConfig();
+        reload();
     }
 
     // ------------------------------------------------------------------ /allitemstotem（管理员）

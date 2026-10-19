@@ -43,10 +43,7 @@ public final class ResurrectListener implements Listener {
         if (!s.enabled || s.excludedCauses.contains(event.getCause())) {
             return;
         }
-        // 玩家自己用 /itemstotem off 关掉了
-        if (!plugin.isEffectEnabled(player)) {
-            return;
-        }
+        // s.enabled 即全局开关，管理员用 /itemstotem on|off 控制
 
         GameMode mode = player.getGameMode();
         if (mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR) {

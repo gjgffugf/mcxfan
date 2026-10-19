@@ -9,10 +9,10 @@ website: https://github.com/YourName/AllItemsTotem
 
 commands:
   itemstotem:
-    description: 开关“所有物品当不死图腾”的效果
-    usage: /<command> <on|off|toggle|status> [玩家]
-    aliases: [it, ait2]
-    permission: allitemstotem.use
+    description: 全局开关“所有物品当不死图腾”的效果（管理员）
+    usage: /<command> <on|off|toggle|status>
+    aliases: [it]
+    permission: allitemstotem.admin
   allitemstotem:
     description: 重载 AllItemsTotem 配置
     usage: /<command> reload
