@@ -1,6 +1,7 @@
 package com.example.totemitems;
 
 import org.bukkit.Bukkit;
+import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
@@ -14,8 +15,10 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * 用 ItemDisplay 实体模拟原版不死图腾的"物品举到眼前旋转"动画。
- * 原版这个动画是纯客户端的，服务端无法直接触发，只能这样还原。
+ * 复活时播放的动画，三种模式：
+ * - vanilla：发原版 entity status 35，客户端播放真正的原版屏幕动画（自带粒子与音效）
+ * - display：用 ItemDisplay 实体模拟，可以显示"被消耗的那件物品"，别人也能看到
+ * - both：两者都播——自己看到原版动画，附近玩家看到物品飞出来转一圈
  */
 public final class TotemAnimation {
 
@@ -27,6 +30,27 @@ public final class TotemAnimation {
             return;
         }
 
+        if (settings.animationMode == TotemSettings.AnimationMode.VANILLA
+                || settings.animationMode == TotemSettings.AnimationMode.BOTH) {
+            playVanilla(player);
+        }
+        if (settings.animationMode == TotemSettings.AnimationMode.VANILLA) {
+            return;
+        }
+        playDisplay(plugin, player, item, settings);
+    }
+
+    /**
+     * 发送原版 entity status 35（USE_TOTEM_OF_UNDYING）。
+     * 客户端收到后：给该实体挂上 TOTEM_OF_UNDYING 粒子发射器、播放 item.totem.use 音效，
+     * 并且如果这个实体是自己，就播放那个"物品浮在屏幕前旋转"的屏幕动画。
+     */
+    private static void playVanilla(Player player) {
+        player.playEffect(EntityEffect.TOTEM_RESURRECT);
+    }
+
+    /** 用 ItemDisplay 模拟动画，可以显示任意物品（不只是不死图腾）。 */
+    private static void playDisplay(Plugin plugin, Player player, ItemStack item, TotemSettings settings) {
         Location eye = player.getEyeLocation();
         ItemStack shown = item.clone();
         shown.setAmount(1);

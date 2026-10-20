@@ -52,15 +52,21 @@ effects:
     amplifier: 0
     duration: 800
 
-# 物品举到眼前旋转的动画（用 ItemDisplay 模拟原版客户端动画）
+# 复活时的物品动画
 animation:
   enabled: true
-  # 动画时长（tick），30 = 1.5 秒
+  # vanilla = 原版屏幕动画（推荐，客户端自己播放，还自带粒子和音效，其他玩家也能看到）
+  # display = 用 ItemDisplay 实体模拟，能显示"被消耗的那件物品"，周围玩家看得见
+  # both    = 两种都播：自己看原版屏幕动画，别人看物品飞出来转一圈
+  mode: vanilla
+  # 仅 display / both 模式生效：动画时长（tick），30 = 1.5 秒
   duration-ticks: 30
-  # 物品悬在眼前多远（格）
+  # 仅 display / both 模式生效：物品悬在眼前多远（格）
   distance: 1.25
 
 # 粒子与音效
+# 注意：vanilla / both 模式下客户端收到 status 35 后会自己播一次粒子和音效，
+# 这里再开就是"双份"，觉得太吵可以把下面两项设为 false
 particles:
   enabled: true
   amount: 100

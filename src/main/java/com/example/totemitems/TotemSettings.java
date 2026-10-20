@@ -32,6 +32,7 @@ public final class TotemSettings {
     public final int invulnerableTicks;
     public final boolean requirePermission;
     public final boolean animation;
+    public final AnimationMode animationMode;
     public final int animationTicks;
     public final double animationDistance;
     public final boolean particles;
@@ -51,6 +52,7 @@ public final class TotemSettings {
         this.invulnerableTicks = Math.max(0, config.getInt("invulnerable-ticks", 0));
         this.requirePermission = config.getBoolean("require-permission", false);
         this.animation = config.getBoolean("animation.enabled", true);
+        this.animationMode = readAnimationMode(config, logger);
         this.animationTicks = Math.max(5, config.getInt("animation.duration-ticks", 30));
         this.animationDistance = config.getDouble("animation.distance", 1.25D);
         this.particles = config.getBoolean("particles.enabled", true);
@@ -60,6 +62,19 @@ public final class TotemSettings {
         this.effects = Collections.unmodifiableList(readEffects(config, logger));
         this.blacklist = Collections.unmodifiableSet(readBlacklist(config, logger));
         this.excludedCauses = Collections.unmodifiableSet(readCauses(config, logger));
+    }
+
+    /** 动画模式：vanilla（原版屏幕动画）/ display（ItemDisplay 模拟）/ both */
+    public enum AnimationMode { VANILLA, DISPLAY, BOTH }
+
+    private static AnimationMode readAnimationMode(FileConfiguration config, Logger logger) {
+        String raw = config.getString("animation.mode", "vanilla");
+        try {
+            return AnimationMode.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            logger.warning("[AllItemsTotem] 未知的动画模式: " + raw + "（回退为 vanilla）");
+            return AnimationMode.VANILLA;
+        }
     }
 
     private static List<PotionEffect> readEffects(FileConfiguration config, Logger logger) {
